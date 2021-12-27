@@ -51,18 +51,18 @@
                             <hr>
 
                             <!-- bank select -->
-                            <div class="form-outline mb-4">
+                            <!-- <div class="form-outline mb-4">
                                 <label class="form-label" for="bank">Bank</label>
                                 <select type="text" name="bank" id="bank" class="form-control form-control-lg" required>
                                     <option value="">Select</option>
                                     <option value="boi">BOI</option>
                                     <option value="jrgb">JRGB</option>
                                 </select>
-                            </div>
+                            </div> -->
                             <!-- Email input -->
                             <div class="form-outline mb-4">
-                                <label class="form-label" for="koid">KOID</label>
-                                <input type="text" name="koid" id="koid" class="form-control form-control-lg" required />
+                                <label class="form-label" for="koid">User Id</label>
+                                <input type="text" name="userId" id="koid" class="form-control form-control-lg" required />
                             </div>
 
                             <!-- Password input -->

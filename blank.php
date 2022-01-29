@@ -3,21 +3,6 @@ session_start();
 //session_destroy();
 if ($_SESSION['user_id'] != "") {
     include './connection.php';
-    $query_for_image = "SELECT * FROM gallery g ORDER BY g.id_image DESC";
-    /*$query_for_image="";
-    if($_SESSION['role'] == 1){
-        $query_for_image = "SELECT * FROM gallery g ORDER BY g.id_image DESC";
-    }
-    else{
-        $query_for_image = "SELECT * FROM gallery g WHERE g.bank = '{$_SESSION['bank']}' ORDER BY g.id_image DESC";
-    }*/
-
-    $result = mysqli_query($conn, $query_for_image);
-    $result2 = mysqli_query($conn, $query_for_image);
-    $object_image = mysqli_fetch_assoc($result);
-    $count = 0; //Count For Skip 1 FIle
-
-    
 ?>
     <!doctype html>
     <html lang="en">
@@ -49,52 +34,6 @@ if ($_SESSION['user_id'] != "") {
     </head>
 
     <body>
-        <!-- Model For List -->
-        <!-- Modal -->
-        <?php if($_SESSION['role'] == "1"){?>
-        <div class="modal fade" id="listModel" tabindex="-1" aria-labelledby="exampleModalLabel" aria-hidden="true">
-            <div class="modal-dialog modal-lg">
-                <div class="modal-content">
-                    <div class="modal-header">
-                        <h5 class="modal-title" id="">BC List</h5>
-                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
-                            <span aria-hidden="true">&times;</span>
-                        </button>
-                    </div>
-                    <div class="modal-body">
-                        <!-- Table List -->
-                        <table class="table table-bordered">
-                            <thead>
-                                <tr>
-                                    <th scope="col">S.No.</th>
-                                    <th scope="col">ID</th>
-                                    <th scope="col">Name</th>
-                                    <th scope="col">Mobile Number</th>
-                                    <th scope="col">Image</th>
-                                </tr>
-                            </thead>
-                            <tbody>
-                                <?php
-                                $query_list = "SELECT * FROM `login_table` l WHERE l.role=2 ORDER BY l.id DESC";
-                                $result_object = mysqli_query($conn, $query_list);
-                                $no=1; while($row_list = mysqli_fetch_assoc($result_object)){?>
-                                <tr>
-                                    <th scope="row"><?php echo($no); ?></th>
-                                    <td><?php echo($row_list['user_id']); ?></td>
-                                    <td><?php echo($row_list['name']); ?></td>
-                                    <td><?php echo($row_list['mobile_number']); ?></td>
-                                    <td class="text-center"><img src="data:<?php echo ($row_list['image_type']); ?>;charset=utf-8;base64,<?php echo (base64_encode($row_list['bc_image'])); ?>" alt="" style="height: 200px;width:200px;"></td>
-                                </tr>
-                                <?php $no=$no+1; } ?>
-                            </tbody>
-                        </table>
-                        <!-- Table List End -->
-                    </div>
-                </div>
-            </div>
-        </div>
-        <?php } ?>
-        <!-- Model For List End -->
         <div id="main" class="h-100 m-0 p-0">
             <section class="vh-100" style="padding: 1%;">
                 <!-- Modal creative upload for Image -->
@@ -166,7 +105,8 @@ if ($_SESSION['user_id'] != "") {
                                     <div class="form-group mt-3">
                                         <label class="m-1" for="koid">User ID :</label>
                                         <input type="text" name="user_id" class="form-control" id="koid" required>
-                                        <div id="error" style="display:none;"><small class="text-danger">User Already Exist!!!</small></div>
+                                        <div id="error" style="display:none;"><small class="text-danger">User Already
+                                                Exist!!!</small></div>
                                     </div>
                                     <div class="form-group mt-3">
                                         <label class=" m-1" for="name">Name :</label>
@@ -221,10 +161,11 @@ if ($_SESSION['user_id'] != "") {
                                 </button>
                             </a>
 
-                            <a class="navbar-brand" href="#">
-                                <button type="button" data-toggle="modal" data-target="#listModel" class="btn btn-success" href="#" data-whatever="@getbootstrap"><i class="bi bi-upload mr-1"></i> BC List
-                                </button>
-                            </a>
+                            <!-- <a class="navbar-brand" href="#">
+                        <button type="button" data-toggle="modal" data-target="#listModel" class="btn btn-success"
+                            href="#" data-whatever="@getbootstrap"><i class="bi bi-upload mr-1"></i> BC List
+                        </button>
+                    </a> -->
 
                         <?php } ?>
                         <div>
@@ -245,132 +186,169 @@ if ($_SESSION['user_id'] != "") {
                     </nav>
                     <!------------------------ navbar END     ----------------------->
 
+                    <?php
+                    $limit = 10;
 
-                    <div class="row m-4 p-0 rounded">
-                        <!-- Big Image -->
-                        <div class="col-md-4 col-sm-12 bg-light border-dark " style="height: 450px;">
-                            <div class="content">
-                                <a href="#">
-                                    <div class="content-overlay m-2 rounded text-center"></div>
+                    if (isset($_GET['page'])) {
+                        $page = $_GET['page'];
+                    } else {
+                        $page = 1;
+                    }
 
-                                    <img id="top-image" class="m-2  p-2 rounded  content-image border rounded text-center" src="data:<?php echo ($object_image['image_type']); ?>;charset=utf-8;base64,<?php echo (base64_encode($object_image['image'])); ?>" alt="" height="410px">
+                    $offset = ($page - 1) * $limit;
 
-                                    <div class="content-details fadeIn-bottom">
-                                        <button id="download-creative" class="btn btn-success">Download</button>
-                                    </div>
-                                </a>
-                            </div>
-                        </div>
-                        <div class="col-md-8 col-sm-12 bg-light border-dark">
-                            <div class="row text-center">
-                                <div class="col-12">
-                                    <div class="row">
-                                        <!-- Small Images -->
-                                        <?php
-                                        $count = 1;
-                                        while ($row_image = mysqli_fetch_assoc($result2)) {
-                                            if ($count < 9) {
-                                        ?>
-                                                <div class="col-md-3 col-sm-12 bg-light border-dark " style="height: 300; width:300px;">
-                                                    <a href="#" class="hover-box-shadow">
-                                                        <img class="m-2 p-2 rounded img-fluid border rounded " src="data:<?php echo ($row_image['image_type']); ?>;charset=utf-8;base64,<?php echo (base64_encode($row_image['image'])); ?>" width="300px" height="300px" alt="" onclick="changeIt(this.src)">
-                                                    </a>
+                    $sql = "SELECT * FROM `login_table` WHERE role=2 ORDER BY id DESC LIMIT {$offset},{$limit}";
+                    $result_obj1 = mysqli_query($conn, $sql);
+
+                    ?>
+                    <div class="m-4 p-0 rounded w-80 text-center">
+                        <h3>Heading</h3>
+                        <table class="table table-bordered">
+                            <thead>
+                                <tr>
+                                    <th scope="col">S.No.</th>
+                                    <th scope="col">ID</th>
+                                    <th scope="col">Name</th>
+                                    <th scope="col">Mobile Number</th>
+                                    <th scope="col">Image</th>
+                                    <th scope="col">Edit</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <?php $num = 1;
+                                while ($row = mysqli_fetch_assoc($result_obj1)) { ?>
+                                    <tr>
+                                        <th scope="row"><?php echo ($num); ?></th>
+                                        <td><?php echo ($row['user_id']); ?></td>
+                                        <td><?php echo ($row['name']); ?></td>
+                                        <td><?php echo ($row['mobile_number']); ?></td>
+                                        <td class="text-center"><img src="data:<?php echo ($row['image_type']); ?>;charset=utf-8;base64,<?php echo (base64_encode($row['bc_image'])); ?>" alt="" style="height: 200px;width:200px;"></td>
+                                        <td><button type="button" data-toggle="modal" data-target="#<?php echo ($num); ?>" class="btn btn-primary" data-whatever="@getbootstrap">Edit</button>
+                                        </td>
+
+                                        <!-- Model -->
+                                        <div class="modal fade" id="<?php echo ($num); ?>" tabindex="-1" role="dialog" aria-labelledby="exampleModalLabel" aria-hidden="true">
+                                            <div class="modal-dialog" role="document">
+                                                <div class="modal-content">
+                                                    <div class="modal-header">
+                                                        <h5 class="modal-title">Update BC Details</h5>
+                                                        <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                                                            <span aria-hidden="true">&times;</span>
+                                                        </button>
+                                                    </div>
+                                                    <div class="modal-body">
+                                                        <form action="#" method="POST" enctype="multipart/form-data">
+                                                            <!--<div class="form-group mt-3">-->
+                                                            <!--    <label for="m-1">Bank</label>-->
+                                                            <!--    <select name="bank" id="m-2" required class="form-control">-->
+                                                            <!--        <option value="" selected>Select Bank</option>-->
+                                                            <!--        <option value="JRGB" >JRGB</option>-->
+                                                            <!--        <option value="BOI" >BOI</option>-->
+                                                            <!--    </select>-->
+                                                            <!--</div>-->
+                                                            <div class="form-group mt-3 text-left">
+                                                                <label class="m-1" for="koid">User ID :</label>
+                                                                <input type="text" name="user_id" class="form-control" required value="<?php echo ($row['user_id']); ?>" disabled>
+                                                            </div>
+                                                            <div class="form-group mt-3 text-left">
+                                                                <label class=" m-1" for="name">Name :</label>
+                                                                <input type="text" name="name" class="form-control" id="name" required value="<?php echo ($row['name']); ?>">
+                                                            </div>
+                                                            <div class="form-group mt-3 text-left">
+                                                                <label class=" m-1" for="mobile">Mobile :</label>
+                                                                <input type="text" name="mobile_number" class="form-control" id="mobile" required value="<?php echo ($row['mobile_number']); ?>">
+                                                            </div>
+
+                                                            <div class="form-group mt-3 text-left">
+                                                                <label class=" m-1" for="photo">Photo :</label>
+                                                                <input type="file" name="user_image" class="form-control" id="photo" accept="image/*" onchange=loadUploadedPhoto(event) required>
+                                                            </div>
+                                                            <div id="view" class="form-group text-center">
+                                                                <img class="m-2 border p-2 rounded" id="outputPhoto" src="" alt="Photo" srcset="" style=" width:300px; height: 300px;">
+                                                            </div>
+                                                            <div id="submitButton" class="form-group text-center">
+                                                                <input type="submit" class="btn btn-success">
+                                                            </div>
+                                                        </form>
+                                                    </div>
+
                                                 </div>
-                                        <?php
-                                                $count = $count + 1;
-                                            } else {
-                                                break;
-                                            }
+                                            </div>
+                                        </div>
+                                        <!-- Model End -->
+                                    </tr>
+                                <?php $num = $num + 1;
+                                } ?>
+                            </tbody>
+                        </table>
+                        <!-- Pagination HTML  -->
+                        <nav aria-label="Page navigation example">
+                            <ul class="pagination">
+                                <?php
+                                $sql1 = "SELECT id FROM `login_table` WHERE role=2";
+                                $result_obj = mysqli_query($conn, $sql1);
+
+                                if (mysqli_num_rows($result_obj) > 0) {
+                                    $total_records = mysqli_num_rows($result_obj);
+
+                                    $total_page = ceil($total_records / $limit);
+
+                                    if ($page > 1) {
+                                ?>
+                                        <li class="page-item"><a class="page-link" href="./bc_list.php?page=<?php echo ($page - 1); ?>">Prev</a></li>
+                                    <?php
+                                    }
+                                    for ($i = 1; $i <= $total_page; $i++) {
+                                        if ($i == $page) {
+                                            $active = "active";
+                                        } else {
+                                            $active = "";
                                         }
+                                    ?>
+                                        <li class="page-item <?php echo ($active); ?>"><a class="page-link" href="./bc_list.php?page=<?php echo ($i); ?>"><?php echo ($i); ?></a></li>
+                                <?php
+                                    }
+                                    if ($page > 1) {
                                         ?>
+                                                <li class="page-item"><a class="page-link" href="./bc_list.php?page=<?php echo($page+1);?>">Next</a></li>
+                                            <?php
+                                            }
+                                }
 
-                                        <!-- <div class="col-md-3 col-sm-12 bg-light border-dark">
-                                        <a href="#" class="hover-box-shadow">
-                                            <img class="m-2 p-2 rounded img-fluid border rounded" src="./2.png"
-                                                width="300px" height="300px" alt="" onclick="changeIt(this.src)">
-                                        </a>
-                                    </div> -->
-                                        <!-- <div class="col-md-3 col-sm-12 bg-light border-dark">
-                                        <a href="#" class="hover-box-shadow">
-                                            <img class="m-2 p-2 rounded img-fluid border rounded" src="./3.png"
-                                                width="300px" height="300px" alt="" onclick="changeIt(this.src)">
-                                        </a>
-                                    </div> -->
-                                        <!-- <div class="col-md-3 col-sm-12 bg-light border-dark">
-                                        <a href="#" class="hover-box-shadow">
-                                            <img class="m-2 p-2 rounded img-fluid border rounded" src="./4.png"
-                                                width="300px" height="300px" alt="" onclick="changeIt(this.src)">
-                                        </a>
-                                    </div> -->
-                                    </div>
-                                </div>
+                                ?>
 
-                                <!-- <div class="col-12">
-                                    <div class="row ">
-                                        <div class="col-md-3 col-sm-12 bg-light border-dark">
-                                            <a href="#" class="hover-box-shadow">
-                                                <img class="m-2 p-2 rounded img-fluid border rounded" src="./5.png" width="300px" height="300px" alt="" onclick="changeIt(this.src)">
-                                            </a>
-                                        </div>
-                                        <div class="col-md-3 col-sm-12 bg-light border-dark">
-                                            <a href="#" class="hover-box-shadow">
-                                                <img class="m-2 p-2 rounded img-fluid border rounded" src="./6.png" width="300px" height="300px" alt="" onclick="changeIt(this.src)">
-                                            </a>
-                                        </div>
-                                        <div class="col-md-3 col-sm-12 bg-light border-dark">
-                                            <a href="#" class="hover-box-shadow">
-                                                <img class="m-2 p-2 rounded img-fluid border rounded" src="./7.png" width="300px" height="300px" alt="" onclick="changeIt(this.src)">
-                                            </a>
-                                        </div>
-                                        <div class="col-md-3 col-sm-12 bg-light border-dark">
-                                            <a href="#" class="hover-box-shadow">
-                                                <img class="m-2 p-2 rounded img-fluid border rounded" src="./8.png" width="300px" height="300px" alt="" onclick="changeIt(this.src)">
-                                            </a>
-                                        </div>
-                                    </div>
-                                </div> -->
-                            </div>
-                        </div>
+                                <!-- <li class="page-item"><a class="page-link" href="#">Previous</a></li>
+                                
+                                <li class="page-item"><a class="page-link" href="#">2</a></li>
+                                <li class="page-item"><a class="page-link" href="#">3</a></li>
+                                <li class="page-item"><a class="page-link" href="#">Next</a></li> -->
+                            </ul>
+                        </nav>
                     </div>
+
                 </div>
             </section>
         </div>
 
 
 
-        <div id="create-area" class="d-none" style="width:1500px;height:1800px;">
-            <div id="top-div" class="m-b-0"> <img id="top" src="data:<?php echo ($object_image['image_type']); ?>;charset=utf-8;base64,<?php echo (base64_encode($object_image['image'])); ?>" alt=""></div>
-            <div class="" style="width:1500px; height:300px;background-color: #1e2434;">
-                <div class="row text-light">
-                    <div class="col-3 text-right" style="margin-top:28px;">
-                        <img id="top-img-main" class=" bg-white" src="data:<?php echo ($_SESSION['image_type']); ?>;charset=utf-8;base64,<?php echo (base64_encode($_SESSION['bc_image'])); ?>" alt="" width="230px" style="border-radius:20px;border: 4px solid #fff;margin-right: 38px; width:230px;height:250px;">
-                    </div>
-                    <div class="col-9" style="margin-top: 28px; font-family: 'Lato', sans-serif;">
-                        <div class="row">
-                            <div class="col-11 mt-3">
-                                <div class="d-flex bd-highlight">
-                                    <div class="bd-highlight">
-                                        <h1 style="font-weight: 900; font-size: 3em;"><?php echo ($_SESSION['name']); ?></h1>
-                                    </div>
-                                    <div class="ml-auto bd-highlight">
-                                        <h1 style="font-weight: 900; font-size: 3em;"><?php echo ($_SESSION['mobile_number']); ?></h1>
-                                    </div>
-                                </div>
-                            </div>
-                            <div class="col-11">
-                                <h1 id="hindi-vednat" class="mt-2" style=" font-weight: 600!important;font-size: 2em;">Vedant Mitra</h1>
-                            </div>
-                            <div class="col-12 mt-2" style="font-weight: 400!important;">
-                                <h3>Banking | Mutual Funds | Insurance | Loans | Money Transfer | Bill payments</h3>
-                            </div>
-                            <div class="col-12" style="font-weight: 400;">
-                                <h3>DTH & Mobile Recharges | Tour Packages | Railway & Flight Bookings</h3>
-                            </div>
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </div>
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
         <script src="https://code.jquery.com/jquery-3.2.1.slim.min.js" integrity="sha384-KJ3o2DKtIkvYIK3UENzmM7KCkRr/rE9/Qpg6aAZGJwFDMVNA/GpGFF93hXpG5KkN" crossorigin="anonymous">
@@ -454,11 +432,10 @@ if ($_SESSION['user_id'] != "") {
                         value: koid
                     },
                     success: function(data) {
-                        if(data == 1){//User Found
+                        if (data == 1) { //User Found
                             $("#submitButton").css("display", "none");
                             $("#error").css("display", "block");
-                        }
-                        else//User Not Found
+                        } else //User Not Found
                         {
                             $("#submitButton").css("display", "block");
                             $("#error").css("display", "none");
@@ -468,28 +445,21 @@ if ($_SESSION['user_id'] != "") {
             });
 
             //Get Information About who Download Imgae
-            function dowloadClick(){
-                var userID = "<?php echo($_SESSION['user_id']); ?>";
-                var mobile_Number = "<?php echo($_SESSION['mobile_number']); ?>";
+            function dowloadClick() {
+                var userID = "<?php echo ($_SESSION['user_id']); ?>";
+                var mobile_Number = "<?php echo ($_SESSION['mobile_number']); ?>";
                 $.ajax({
                     url: "./download_click.php",
                     type: "POST",
                     data: {
-                        user_id : userID,
-                        mobile : mobile_Number
+                        user_id: userID,
+                        mobile: mobile_Number
                     },
                     success: function(data) {
-                        
+
                     }
                 });
-        }
-
-
-
-
-
-
-
+            }
         </script>
 
 
